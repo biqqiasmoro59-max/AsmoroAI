@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AsmoroAI</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #030b17;
+            font-family: Arial, sans-serif;
+            color: white;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #00c6ff, #0051ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-top: 10px;
+        }
+
+        .chat-box {
+            height: 75vh;
+            width: 90%;
+            margin: auto;
+            background: rgba(0, 0, 30, 0.4);
+            border: 1px solid #007bff;
+            border-radius: 12px;
+            padding: 10px;
+            overflow-y: auto;
+            box-shadow: 0 0 12px #006aff;
+        }
+
+        .input-area {
+            display: flex;
+            width: 90%;
+            margin: 15px auto;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #00aaff;
+            background: rgba(0, 10, 30, 0.6);
+            color: white;
+            outline: none;
+        }
+
+        .input-area button {
+            padding: 12px 18px;
+            margin-left: 10px;
+            background: #007bff;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 0 10px #007bff;
+        }
+
+        .bubble {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 10px;
+            max-width: 75%;
+        }
+
+        .user {
+            background: #0044aa;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .ai {
+            background: #002255;
+            margin-right: auto;
+            border-left: 3px solid #007bff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">AsmoroAI – Neon Blue</div>
+
+    <div id="chat" class="chat-box"></div>
+
+    <div class="input-area">
+        <input id="msg" type="text" placeholder="Tulis pesan...">
+        <button onclick="sendMsg()">Kirim</button>
+    </div>
+
+<script>
+    const chatBox = document.getElementById("chat");
+
+    function addMessage(text, sender) {
+        const div = document.createElement("div");
+        div.classList.add("bubble", sender);
+        div.innerText = text;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function sendMsg() {
+        let message = document.getElementById("msg").value;
+        if (!message) return;
+
+        addMessage(message, "user");
+        document.getElementById("msg").value = "";
+
+        // ==========================
+        // GPT STYLE API CALL
+        // ==========================
+        const response = await fetch("https://api-inference.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct", {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer hf_xxxxxxxxxxxxxx",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                inputs: message
+            })
+        });
+
+        const data = await response.json();
+        let aiText = data[0]?.generated_text || "Error: AI tidak merespon.";
+
+        addMessage(aiText, "ai");
+    }
+</script>
+
+</body>
+</html>
